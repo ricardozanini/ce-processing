@@ -1,10 +1,9 @@
 package org.m88i.cloud.ce;
 
 import io.cloudevents.CloudEvent;
+import io.cloudevents.Extension;
 import io.cloudevents.http.vertx.VertxMessageFactory;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
-import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,21 +19,28 @@ public class CloudEventListenerVerticle extends AbstractVerticle {
                 .requestHandler(req -> {
                     VertxMessageFactory.createReader(req)
                             .onSuccess(result -> {
-                                CloudEvent event = result.toEvent();
-                                // Echo the message, as structured mode
-                                VertxMessageFactory
-                                        .createWriter(req.response())
-                                        .writeStructured(event, CLOUDEVENTS_CONTENT_TYPE);
-                                LOGGER.info("Received event: {}", event.toString());
-                                // we now send a message to our internal bus notifying the publisher that we processed a CE successfully
-                                LOGGER.info("Sending internal event to emit a success CloudEvent to the platform");
-                                emitInternalEvent(new InternalMessage(String.format("CE Processed ID: %s", event.getId())));
+                                try {
+                                    CloudEvent event = result.toEvent();
+                                    LOGGER.info("Received event: {}", event.toString());
+                                    // Echo the message, as structured mode
+                                    VertxMessageFactory
+                                            .createWriter(req.response())
+                                            .writeStructured(event, CLOUDEVENTS_CONTENT_TYPE);
+                                    // we now send a message to our internal bus notifying the publisher that we processed a CE successfully
+                                    if (!Source.isFromLocal(event)) {
+                                        emitInternalEvent(new InternalMessage(String.format("CE Processed ID: %s", event.getId())));
+                                    } else {
+                                        LOGGER.info("Won't emit a follow up CloudEvent since {} comes from a local source", event);
+                                    }
+                                } catch (Exception ex) {
+                                    LOGGER.error("Failed to convert event", ex);
+                                    emitInternalEvent(new InternalMessage(ex));
+                                }
                             })
                             .onFailure(result -> {
-                                LOGGER.error("Failed to process the request {}", result.getCause());
+                                LOGGER.error("Failed to process the request", result.getCause());
                                 req.response().setStatusCode(SERVER_ERROR).end();
                                 // ops, an error happened, let's notify our publisher
-                                LOGGER.info("Sending internal event to emit a failure CloudEvent to the platform");
                                 emitInternalEvent(new InternalMessage(result.getCause()));
                             });
                 })

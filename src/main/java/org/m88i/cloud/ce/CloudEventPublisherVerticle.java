@@ -11,13 +11,12 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.UUID;
 
 public class CloudEventPublisherVerticle extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudEventPublisherVerticle.class);
+    private static final String PUBLISH_ADDRESS_CONFIG = "publisher.address";
+    private static final String PUBLISH_ADDRESS_DEFAULT = "http://localhost:8080/";
 
     public void start() {
         vertx.eventBus().consumer(Queues.CE_CLIENT_QUEUE, this::onMessage);
@@ -27,14 +26,10 @@ public class CloudEventPublisherVerticle extends AbstractVerticle {
     public void onMessage(Message<JsonObject> message) {
         HttpClient client = vertx.createHttpClient();
         LOGGER.info("Received internal message. Creating new CE request");
-        /* TODO: URI must come from a config file, being injected by Knative
-           The AbstractVerticle#config() method allows accessing the verticle configuration that has been provided.
-           The second parameter is a default value in case no specific value was given.
-           see: https://vertx.io/docs/guide-for-java-devs/#_the_http_server_verticle
-         */
-        HttpClientRequest request = client.postAbs("http://localhost:8180")
+        HttpClientRequest request = client.postAbs(config().getString(PUBLISH_ADDRESS_CONFIG, PUBLISH_ADDRESS_DEFAULT))
                 .handler(httpClientResponse -> {
                     VertxMessageFactory
+                            // we can't change to WebClient 'cause VertxMessageFactory.createReader doesn't have an HttpResponse input yet
                             .createReader(httpClientResponse)
                             .onComplete(result -> {
                                 if (result.succeeded()) {
@@ -51,21 +46,12 @@ public class CloudEventPublisherVerticle extends AbstractVerticle {
                 .withId(UUID.randomUUID().toString())
                 .withType(internalMsg.getType().getCEType())
                 .withData(internalMsg.getBody().getBytes())
-                .withSource(getSource())
+                .withSource(Source.getLocal())
                 .build();
-
+        LOGGER.info("CE created {}, sending", event);
         // Write request as binary
         VertxMessageFactory
                 .createWriter(request)
                 .writeBinary(event);
-    }
-
-    private URI getSource() {
-        try {
-            final InetAddress localHost = InetAddress.getLocalHost();
-            return URI.create(localHost.getHostName());
-        } catch (UnknownHostException e) {
-           return URI.create("http://localhost");
-        }
     }
 }
