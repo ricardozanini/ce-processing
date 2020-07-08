@@ -1,0 +1,33 @@
+# Reference: https://knative.dev/docs/eventing/getting-started/#setting-up-knative-eventing-resources
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ce-processing
+spec:
+  replicas: 1
+  selector:
+    matchLabels: &labels
+      app: ce-processing
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      containers:
+        - name: ce-processing
+          image: quay.io/ricardozanini/ce-processing:1.0
+
+---
+
+# Service pointing at the previous Deployment. This will be the target for event
+# consumption.
+kind: Service
+apiVersion: v1
+metadata:
+  name: ce-processing
+spec:
+  selector:
+    app: ce-processing
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

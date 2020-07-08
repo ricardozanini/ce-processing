@@ -1,6 +1,6 @@
 # CloudEvents Processing
 
-## Try it out
+## Try it out locally
 
 This image is available on Quay.io:
 
@@ -39,3 +39,23 @@ INFO: Succeeded in deploying verticle
 19:55:17.547 [vert.x-eventloop-thread-1] INFO  o.m.c.ce.CloudEventListenerVerticle - Received event: CloudEvent{id='9ec36d7d-6eda-4db3-a00c-8e3b896fb420', source=5a522904f683, type='success.ce.demo', datacontenttype='null', dataschema=null, subject='null', time=null, data=[67, 69, 32, 80, 114, 111, 99, 101, 115, 115, 101, 100, 32, 73, 68, 58, 32, 49, 50, 51, 45, 97, 98, 99], extensions={}}
 19:55:17.548 [vert.x-eventloop-thread-1] INFO  o.m.c.ce.CloudEventListenerVerticle - Won't emit a follow up CloudEvent since CloudEvent{id='9ec36d7d-6eda-4db3-a00c-8e3b896fb420', source=5a522904f683, type='success.ce.demo', datacontenttype='null', dataschema=null, subject='null', time=null, data=[67, 69, 32, 80, 114, 111, 99, 101, 115, 115, 101, 100, 32, 73, 68, 58, 32, 49, 50, 51, 45, 97, 98, 99], extensions={}} comes from a local source
 ```
+
+## Running with Knative Eventing
+
+1. Install `minikube` and `kubectl` or have a Kubernetes cluster available
+2. Setup Istio + Knative
+
+```shell script
+# create the namespace
+kubectl create namespace ce
+# enable Knative Eventing injection
+kubectl label namespace ce knative-eventing-injection=enabled
+# deploy the application
+kubectl apply -f kubernetes/service-deploy.yaml
+```
+
+## References
+
+- [Setting up Knative Eventing Resources](https://knative.dev/docs/eventing/getting-started/#setting-up-knative-eventing-resources)
+- [Processing CloudEvents with Eclipse Vert.x](https://developers.redhat.com/blog/2018/12/11/processing-cloudevents-vertx/)
+- [CloudEvents Java SDK](https://github.com/cloudevents/sdk-java/tree/master/http/vertx)
