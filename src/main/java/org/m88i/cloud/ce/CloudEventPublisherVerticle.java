@@ -15,18 +15,18 @@ import java.util.UUID;
 
 public class CloudEventPublisherVerticle extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudEventPublisherVerticle.class);
-    private static final String PUBLISH_ADDRESS_CONFIG = "publisher.address";
+    private static final String PUBLISH_ADDRESS_ENV = "PUBLISHER_ADDRESS";
     private static final String PUBLISH_ADDRESS_DEFAULT = "http://localhost:8080/";
 
     public void start() {
         vertx.eventBus().consumer(Queues.CE_CLIENT_QUEUE, this::onMessage);
-        LOGGER.info("CE Publisher started");
+        LOGGER.info("CE Publisher started, will publish events to '{}' endpoint", getPublishAddress());
     }
 
     public void onMessage(Message<JsonObject> message) {
-        HttpClient client = vertx.createHttpClient();
+        final HttpClient client = vertx.createHttpClient();
         LOGGER.info("Received internal message. Creating new CE request");
-        HttpClientRequest request = client.postAbs(config().getString(PUBLISH_ADDRESS_CONFIG, PUBLISH_ADDRESS_DEFAULT))
+        HttpClientRequest request = client.postAbs(getPublishAddress())
                 .handler(httpClientResponse -> {
                     VertxMessageFactory
                             // we can't change to WebClient 'cause VertxMessageFactory.createReader doesn't have an HttpResponse input yet
@@ -53,5 +53,13 @@ public class CloudEventPublisherVerticle extends AbstractVerticle {
         VertxMessageFactory
                 .createWriter(request)
                 .writeBinary(event);
+    }
+
+    private String getPublishAddress() {
+        final String address = System.getenv(PUBLISH_ADDRESS_ENV);
+        if (address == null || "".equals(address)) {
+            return PUBLISH_ADDRESS_DEFAULT;
+        }
+        return address;
     }
 }
