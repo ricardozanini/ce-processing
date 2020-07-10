@@ -1,6 +1,6 @@
 # CloudEvents Processing
 
-This is a very simple showcase of how to use the CloudEvent Java SDK to process
+This is a very simple showcase of how to use the [CloudEvent Java SDK](https://github.com/cloudevents/sdk-java) to process
 events in a Kubernetes cluster on top of Knative.
 
 The following image illustrates the architecture of the showcase.
@@ -67,8 +67,8 @@ Data,
 
 ## Running with Knative Eventing
 
-1. Install `minikube` and `kubectl` or have a Kubernetes cluster available
-2. Setup Istio + Knative
+1. Install [`minikube`](https://kubernetes.io/docs/tasks/tools/install-minikube/) and `kubectl` or have a Kubernetes cluster available
+2. Setup [Istio + Knative](https://knative.dev/docs/install/)
 
 ```shell script
 # create the namespace
