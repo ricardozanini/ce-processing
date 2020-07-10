@@ -3,6 +3,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ce-processing
+  labels:
+    app: ce-processing
 spec:
   replicas: 1
   selector:
@@ -15,6 +17,7 @@ spec:
       containers:
         - name: ce-processing
           image: quay.io/ricardozanini/ce-processing:1.0
+          imagePullPolicy: Always
 
 ---
 

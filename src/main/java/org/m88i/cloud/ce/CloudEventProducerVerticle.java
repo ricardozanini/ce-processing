@@ -13,9 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
-public class CloudEventPublisherVerticle extends AbstractVerticle {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CloudEventPublisherVerticle.class);
-    private static final String PUBLISH_ADDRESS_ENV = "PUBLISHER_ADDRESS";
+public class CloudEventProducerVerticle extends AbstractVerticle {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudEventProducerVerticle.class);
+    // K_SINK is the environment variable injected by Knative Eventing
+    private static final String PUBLISH_ADDRESS_ENV = "K_SINK";
     private static final String PUBLISH_ADDRESS_DEFAULT = "http://localhost:8080/";
 
     public void start() {
@@ -25,7 +26,7 @@ public class CloudEventPublisherVerticle extends AbstractVerticle {
 
     public void onMessage(Message<JsonObject> message) {
         final HttpClient client = vertx.createHttpClient();
-        LOGGER.info("Received internal message. Creating new CE request");
+        LOGGER.info("Received internal message. Creating new CE request to {}", getPublishAddress());
         HttpClientRequest request = client.postAbs(getPublishAddress())
                 .handler(httpClientResponse -> {
                     VertxMessageFactory
@@ -34,7 +35,7 @@ public class CloudEventPublisherVerticle extends AbstractVerticle {
                             .onComplete(result -> {
                                 if (result.succeeded()) {
                                     CloudEvent event = result.result().toEvent();
-                                    LOGGER.info("CloudEvent sent successfully! {}", event.toString());
+                                    LOGGER.info("CloudEvent sent successfully! {}", Printer.beautify(event));
                                 } else {
                                     LOGGER.error("Failed to send CloudEvent: ", result.cause());
                                 }
@@ -48,7 +49,6 @@ public class CloudEventPublisherVerticle extends AbstractVerticle {
                 .withData(internalMsg.getBody().getBytes())
                 .withSource(Source.getLocal())
                 .build();
-        LOGGER.info("CE created {}, sending", event);
         // Write request as binary
         VertxMessageFactory
                 .createWriter(request)

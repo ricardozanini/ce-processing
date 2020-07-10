@@ -11,17 +11,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(VertxUnitRunner.class)
-public class CloudEventListenerVerticleTest {
+public class CloudEventConsumerVerticleTest {
 
     private Vertx vertx;
 
     @Test
     public void assertSend(TestContext context) {
         vertx = Vertx.vertx();
-        vertx.deployVerticle(new CloudEventListenerVerticle(), context.asyncAssertSuccess());
+        vertx.deployVerticle(new CloudEventConsumerVerticle(), context.asyncAssertSuccess());
         Async async = context.async();
         WebClient client = WebClient.create(vertx);
-        client.post(CloudEventListenerVerticle.DEFAULT_PORT, "localhost", "/")
+        client.post(CloudEventConsumerVerticle.DEFAULT_PORT, "localhost", "/")
                 .putHeader("content-type", "application/json")
                 .putHeader("ce-specversion", "1.0")
                 .putHeader("ce-source", "unit-test")

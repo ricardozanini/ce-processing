@@ -1,15 +1,14 @@
 package org.m88i.cloud.ce;
 
 import io.cloudevents.CloudEvent;
-import io.cloudevents.Extension;
 import io.cloudevents.http.vertx.VertxMessageFactory;
 import io.vertx.core.AbstractVerticle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CloudEventListenerVerticle extends AbstractVerticle {
+public class CloudEventConsumerVerticle extends AbstractVerticle {
     static final int DEFAULT_PORT = 8080;
-    private static final Logger LOGGER = LoggerFactory.getLogger(CloudEventListenerVerticle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudEventConsumerVerticle.class);
     private static final String CLOUDEVENTS_CONTENT_TYPE = "application/cloudevents+json";
     private static final int SERVER_ERROR = 500;
 
@@ -21,7 +20,7 @@ public class CloudEventListenerVerticle extends AbstractVerticle {
                             .onSuccess(result -> {
                                 try {
                                     CloudEvent event = result.toEvent();
-                                    LOGGER.info("Received event: {}", event.toString());
+                                    LOGGER.info("Received event: {}", Printer.beautify(event));
                                     // Echo the message, as structured mode
                                     VertxMessageFactory
                                             .createWriter(req.response())

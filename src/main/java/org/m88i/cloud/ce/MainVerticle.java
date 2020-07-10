@@ -12,11 +12,11 @@ public class MainVerticle extends AbstractVerticle {
     @Override
     public void start(Promise<Void> promise) throws Exception {
         Promise<String> listenerDeployment = Promise.promise();
-        vertx.deployVerticle(new CloudEventListenerVerticle(), listenerDeployment);
+        vertx.deployVerticle(new CloudEventConsumerVerticle(), listenerDeployment);
 
         listenerDeployment.future().compose(id -> {
             Promise<String> publisherDeployment = Promise.promise();
-            vertx.deployVerticle(new CloudEventPublisherVerticle(), publisherDeployment);
+            vertx.deployVerticle(new CloudEventProducerVerticle(), publisherDeployment);
             return publisherDeployment.future();
         }).onComplete(ar -> {
             if (ar.succeeded()) {

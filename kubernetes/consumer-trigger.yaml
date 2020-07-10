@@ -1,0 +1,16 @@
+apiVersion: eventing.knative.dev/v1beta1
+kind: Trigger
+metadata:
+  name: ce-processing-trigger
+spec:
+  # the default broker has been enabled in the cluster since the namespace is labeled with knative-eventing-injection=enabled
+  broker: default
+  filter:
+    attributes:
+      type: dev.knative.sources.ping
+  # the subscriber is the deployed service, any event that match the filter above in the broker will be sent to us
+  subscriber:
+    ref:
+      apiVersion: v1
+      kind: Service
+      name: ce-processing
