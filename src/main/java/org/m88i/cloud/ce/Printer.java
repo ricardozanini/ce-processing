@@ -18,7 +18,8 @@ public final class Printer {
                 .append("\tsource: ").append(event.getSource()).append("\n")
                 .append("\tid: ").append(event.getId()).append("\n")
                 .append("\ttime: ").append(event.getTime()).append("\n")
-                .append("Extensions,").append(beautifyExtensions(event))
+                // supressing extensions since looks like knative is injecting too much of them or the SDK is not handling that well.
+                //.append("Extensions,").append(beautifyExtensions(event))
                 .append("Data,\n\t").append(new String(event.getData()));
         return sb.toString();
     }

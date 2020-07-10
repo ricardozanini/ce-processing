@@ -1,5 +1,14 @@
 # CloudEvents Processing
 
+This is a very simple showcase of how to use the CloudEvent Java SDK to process
+events in a Kubernetes cluster on top of Knative.
+
+The following image illustrates the architecture of the showcase.
+Take a look at the [`kubernetes`](kubernetes) directory for more details about the
+objects created in the cluster.
+
+![](CE-Processing-Architecture.png)
+
 ## Try it out locally
 
 This image is available on Quay.io:
@@ -67,7 +76,20 @@ kubectl create namespace ce
 # enable Knative Eventing injection
 kubectl label namespace ce knative-eventing-injection=enabled
 # deploy the application
-kubectl apply -f kubernetes/service-deploy.yaml
+kubectl apply -f kubernetes/ce-service-deploy.yaml -n ce
+# deploy consumer and producers for the application
+kubectl apply -f kubernetes/consumer-trigger.yaml -n ce
+kubectl apply -f kubernetes/producer-sinkbinding.yaml -n ce
+# deploy the event display
+kubectl apply -f kubernetes/event-display.yaml -n ce
+# deploy the event source
+kubectl apply -f kubernetes/emitter.yaml -n ce
+```
+
+To see the showcase in action, try looking the logs of the deployed application:
+
+```shell script
+kubectl logs -f ce-processing-<hash> -n ce
 ```
 
 ## References
