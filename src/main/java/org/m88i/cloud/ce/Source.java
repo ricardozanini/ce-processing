@@ -12,7 +12,7 @@ public final class Source {
     }
 
     public static final boolean isFromLocal(CloudEvent event)  {
-        return event.getSource().equals(getLocal());
+        return event.getAttributes().getSource().equals(getLocal());
     }
 
     public static final URI getLocal() {

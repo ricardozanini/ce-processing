@@ -35,7 +35,7 @@ You should see the application logs like:
 ```shell script
 19:20:51.078 [vert.x-eventloop-thread-1] INFO  o.m.c.ce.CloudEventConsumerVerticle - Initializing Vertx Server
 19:20:51.178 [vert.x-eventloop-thread-2] INFO  o.m.c.ce.CloudEventProducerVerticle - CE Publisher started, will publish events to 'http://localhost:8080/' endpoint
-19:20:51.180 [vert.x-eventloop-thread-0] INFO  org.m88i.cloud.ce.MainVerticle - Successfully deployed MainVerticle
+19:20:51.180 [vert.x-eventloop-thread-0] INFO  org.m88i.cloud.ce.vertx.MainVerticle - Successfully deployed MainVerticle
 19:20:51.183 [vert.x-eventloop-thread-1] INFO  o.m.c.ce.CloudEventConsumerVerticle - Server started on port 8080
 Jul 10, 2020 7:20:51 PM io.vertx.core.impl.launcher.commands.VertxIsolatedDeployer
 INFO: Succeeded in deploying verticle

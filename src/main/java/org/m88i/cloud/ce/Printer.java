@@ -2,6 +2,7 @@ package org.m88i.cloud.ce;
 
 import io.cloudevents.CloudEvent;
 
+import java.util.Map;
 import java.util.Set;
 
 public final class Printer {
@@ -13,22 +14,21 @@ public final class Printer {
         final StringBuilder sb = new StringBuilder();
         sb.append("\n☁ ️cloudevents.Event\n")
                 .append("Context Attributes,\n")
-                .append("\tspecversion: ").append(event.getSpecVersion()).append("\n")
-                .append("\ttype: ").append(event.getType()).append("\n")
-                .append("\tsource: ").append(event.getSource()).append("\n")
-                .append("\tid: ").append(event.getId()).append("\n")
-                .append("\ttime: ").append(event.getTime()).append("\n")
+                .append("\tspecversion: ").append(event.getAttributes().getSpecversion()).append("\n")
+                .append("\ttype: ").append(event.getAttributes().getType()).append("\n")
+                .append("\tsource: ").append(event.getAttributes().getSource()).append("\n")
+                .append("\tid: ").append(event.getAttributes().getId()).append("\n")
                 // supressing extensions since looks like knative is injecting too much of them or the SDK is not handling that well.
                 //.append("Extensions,").append(beautifyExtensions(event))
-                .append("Data,\n\t").append(new String(event.getData()));
+                .append("Data,\n\t").append(event.getData().orElse(""));
         return sb.toString();
     }
 
     private static String beautifyExtensions(CloudEvent event) {
-        final Set<String> extensions = event.getExtensionNames();
+        final Map<String, Object> extensions = event.getExtensions();
         final StringBuilder sb = new StringBuilder();
-        for (String e : extensions) {
-            sb.append("\t").append(e).append(": ").append(event.getExtension(e)).append("\n");
+        for (Map.Entry<String, Object> e : extensions.entrySet()) {
+            sb.append("\t").append(e.getKey()).append(": ").append(e.getValue()).append("\n");
         }
         if (extensions == null || extensions.isEmpty()) {
             sb.append("\n");
