@@ -6,8 +6,8 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
 
-public final class Source {
-    private Source() {
+public final class SourceUtil {
+    private SourceUtil() {
 
     }
 

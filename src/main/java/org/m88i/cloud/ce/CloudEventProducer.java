@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,14 +30,16 @@ public class CloudEventProducer {
 
     @Incoming("source")
     @Outgoing("success-ce-demo")
-    public HttpMessage<String> onMessage(CloudEventMessage<String> message) throws URISyntaxException, JsonProcessingException {
-        LOGGER.info("Received internal message. Creating new CE request to {} with message {}", PublishAddress.getPublishAddress(), message.getAttributes().getId());
+    public HttpMessage<String> onMessage(String message) throws URISyntaxException, JsonProcessingException {
+        LOGGER.info("Received internal message. Creating new CE request with message '{}'", message);
 
         final CloudEventImpl<String> ce = CloudEventBuilder.<String>builder()
                 .withId(UUID.randomUUID().toString())
                 .withType(InternalMessageType.SUCCESS.getCEType())
-                .withData(message.getData().orElse(""))
-                .withDataContentType("text/plain")
+                .withData(message)
+                .withTime(ZonedDateTime.now())
+                .withSubject("New Counter")
+                .withDataContentType("application/json")
                 .withSource(new URI("/smallrye/cloudEventMessage"))
                 .build();
 
@@ -48,8 +51,7 @@ public class CloudEventProducer {
 
         final HttpMessage<String> httpMessage = HttpMessage.HttpMessageBuilder.<String>create()
                 .withMethod("POST")
-                .withPayload(wire.getPayload().toString())
-                .withHeader("Content-Type", "application/cloudevents+json")
+                .withPayload(wire.getPayload().orElse(""))
                 .withHeaders(headers)
                 .build();
 

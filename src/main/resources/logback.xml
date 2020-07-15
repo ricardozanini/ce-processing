@@ -6,9 +6,9 @@
     </appender>
     <logger name="com.mchange.v2" level="warn"/>
 
-    <logger name="io.netty" level="debug"/>
-    <logger name="io.vertx" level="debug"/>
-    <logger name="io.smallrye" level="debug"/>
+    <logger name="io.netty" level="info"/>
+    <logger name="io.vertx" level="info"/>
+    <logger name="io.smallrye" level="info"/>
     <logger name="org.jboss.weld" level="info"/>
     <logger name="org.hibernate" level="info"/>
     <logger name="org.m88i.cloud.ce" level="debug"/>

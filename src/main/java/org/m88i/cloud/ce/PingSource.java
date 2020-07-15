@@ -16,17 +16,10 @@ import java.util.concurrent.TimeUnit;
 @ApplicationScoped
 public class PingSource {
     @Outgoing("source")
-    public Publisher<CloudEventMessage<String>> ping() {
+    public Publisher<String> ping() {
         return Flowable.interval(1, TimeUnit.SECONDS)
                 .observeOn(Schedulers.computation())
-                .map(l -> new CloudEventMessageBuilder<String>()
-                        .withId(UUID.randomUUID().toString())
-                        .withType("counter")
-                        .withSource(new URI("local://pingsource"))
-                        .withDataContentType("text/plain")
-                        .withTime(ZonedDateTime.now())
-                        .withData(Long.toString(l))
-                        .build());
+                .map(l -> String.format("{ \"counter\":  %s }", l));
     }
 
 }
