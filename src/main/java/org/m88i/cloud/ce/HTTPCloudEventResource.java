@@ -4,10 +4,8 @@ import io.cloudevents.CloudEvent;
 import io.cloudevents.v1.AttributesImpl;
 import io.cloudevents.v1.CloudEventImpl;
 import io.cloudevents.v1.http.Unmarshallers;
-import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +67,7 @@ public class HTTPCloudEventResource {
                             }
                         })
                         .unmarshal();
-        LOGGER.info("Processed cloudevent {}: {}", MediaType.APPLICATION_JSON,  Printer.beautify(event));
+        LOGGER.info("Processed cloudevent {}: {}", MediaType.APPLICATION_JSON, Printer.beautify(event));
         emitter.send(event);
     }
 
