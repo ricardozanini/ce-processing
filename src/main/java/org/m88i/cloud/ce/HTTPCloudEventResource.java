@@ -4,10 +4,15 @@ import io.cloudevents.CloudEvent;
 import io.cloudevents.v1.AttributesImpl;
 import io.cloudevents.v1.CloudEventImpl;
 import io.cloudevents.v1.http.Unmarshallers;
+import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -28,6 +33,10 @@ public class HTTPCloudEventResource {
 
     public static final String STRUCTURED_TYPE = "application/cloudevents+json";
     private static final Logger LOGGER = LoggerFactory.getLogger(HTTPCloudEventResource.class);
+
+    @Inject
+    @Channel("source")
+    Emitter<CloudEvent<AttributesImpl, Map>> emitter;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -61,12 +70,14 @@ public class HTTPCloudEventResource {
                         })
                         .unmarshal();
         LOGGER.info("Processed cloudevent {}: {}", MediaType.APPLICATION_JSON,  Printer.beautify(event));
+        emitter.send(event);
     }
 
     @POST
     @Consumes(HTTPCloudEventResource.STRUCTURED_TYPE)
     public void listen(CloudEventImpl<Map> cloudEvent) {
         LOGGER.info("Processed cloudevent {}: {}", STRUCTURED_TYPE, Printer.beautify(cloudEvent));
+        emitter.send(cloudEvent);
     }
 
 }
